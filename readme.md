@@ -1,19 +1,23 @@
-# golang project template
+# host info
 
-一些基础的golang代码.
+默认监听8080端口，请求/all将会返回所有主机内容。
 
-包括了 cobra klog 数据库interface,可以正确的接受参数并且处理,接下来只需要在对应位置填充代码逻辑即可.
+## 支持接口
 
-## 文件及功能描述
+/test: test interface
 
-databases/database.go: 存储了基础的数据库需要实现的interface.
+/help: print help info.
 
-databases/mongodb.go: 此文件是用来实现链接数据库的位置,可以实现查询等.不同的数据库使用不同名称的文件,统一实现databases/database.go文件的Databases interface.
+/version: response version info.
 
-server/start.go: 此文件代码处理了cobra klog等框架的冲突,进行了一些检查,如配置文件是否存在等,注册了一些cobra的基础命令,是程序的启动入口.
+/all: print all host node info.
 
-server/server.go: 此文件主要是处理gin框架注册的http或者https的接口的代码.
+/cpu: print host cpu info and CPU usage rate within there seconds.
 
-tools/tools.go: 此文件主要定义了一些全局变量
+/memory: print memory info.
 
-支持使用-p传入端口或者读取配置文件传参。
+/network: print host network info.
+
+/node: print host node and os info.
+
+/disk: print host disk and partition info.

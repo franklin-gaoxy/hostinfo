@@ -1,14 +1,10 @@
 package server
 
 import (
-	"bwrs/databases"
-	"bwrs/tools"
 	"flag"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v3"
-	"io/ioutil"
 	"k8s.io/klog"
 	"os"
 	"strings"
@@ -76,10 +72,7 @@ var rootCmd = cobra.Command{
 	Use:   "config",
 	Short: "input config file address.",
 	Run: func(cmd *cobra.Command, args []string) {
-		if checkConfigFile(configFilePath) {
-			// 默认启动程序 也就是不加任何子命令 只指定--config参数
-			NewStart(configFilePath)
-		}
+		NewStart(configFilePath)
 
 	},
 }
@@ -93,37 +86,11 @@ var versionCmd = &cobra.Command{
 	},
 }
 
-// 增加一个新的子命令 init 需要指定参数 --config 这里是他的启动方法
-var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "used for initializing the environment for the first time.",
-	Run: func(cmd *cobra.Command, args []string) {
-		if checkConfigFile(configFilePath) {
-			initEnvironment(configFilePath)
-		}
-	},
-}
-
 // init cobra框架 将所有的都添加到rootCmd这个主命令下
 func init() {
-	rootCmd.PersistentFlags().StringVar(&configFilePath, "config", "", "config file path.")
 	rootCmd.AddCommand(versionCmd)
-	// 添加一个命令 init 需要指定参数 --config
-	initCmd.PersistentFlags().StringVar(&configFilePath, "config", "", "config file path.")
-	rootCmd.AddCommand(initCmd)
 	// 添加指定端口
 	rootCmd.Flags().IntVarP(&port, "port", "p", 8080, "port to listen on.")
-}
-
-func checkConfigFile(configFilePath string) bool {
-	if configFilePath == "" {
-		// fmt.Println("please input --config!")
-		klog.Fatalln("please input --config!")
-		return false
-	}
-	// fmt.Println("start!Use config file is :", configFilePath)
-	klog.V(2).Info("start!Use config file is :", configFilePath)
-	return true
 }
 
 // Start Cobra's startup function
@@ -140,41 +107,9 @@ New Start
 
 // NewStart default command execute
 func NewStart(configFilePath string) {
-	config := readConfig(configFilePath)
-	klog.V(3).Infof("config: %+v\n", config)
-	// 获取数据库连接
-	newDatabase := NewDatabase(config.Database.DataBaseType)
-	if newDatabase == nil {
-		klog.Fatal("newDatabase Not initialized correctly, is nil!")
-	}
-	newDatabase.Init(config)
-
-	// start gin server: read config port
-	startGinServer(int(config.Port), newDatabase)
 	// start gin server: use command -p
-	startGinServer(port, newDatabase)
+	startGinServer(port)
 
-}
-
-func readConfig(configFilePath string) tools.ServiceConfig {
-	var config tools.ServiceConfig
-	yamlFile, err := ioutil.ReadFile(configFilePath)
-	if err != nil {
-		klog.Fatalf("Error reading YAML file: %s\n", err)
-	}
-
-	// Parse YAML file content to structure
-	err = yaml.Unmarshal(yamlFile, &config)
-	if err != nil {
-		klog.Fatalf("Error parsing YAML file: %s\n", err)
-	}
-
-	return config
-}
-
-// NewDatabase return databases interface
-func NewDatabase(databaseType string) databases.Databases {
-	return databases.NewDatabases(databaseType)
 }
 
 /*
@@ -182,7 +117,7 @@ startGinServer
 Add the new interface address that needs to be processed here.
 The corresponding method is implemented in the server.go file.
 */
-func startGinServer(port int, database databases.Databases) {
+func startGinServer(port int) {
 	var route *gin.Engine
 	route = gin.Default()
 
@@ -196,7 +131,35 @@ func startGinServer(port int, database databases.Databases) {
 
 	// TODO demo: Test interface
 	route.POST("/test", func(c *gin.Context) {
-		Test(c, database)
+		Test(c)
+	})
+
+	route.GET("/help", func(c *gin.Context) {
+		Help(c)
+	})
+
+	route.GET("/all", func(c *gin.Context) {
+		GetAll(c)
+	})
+
+	route.GET("/cpu", func(c *gin.Context) {
+		GetCPU(c)
+	})
+
+	route.GET("/memory", func(c *gin.Context) {
+		GetMemory(c)
+	})
+
+	route.GET("/disk", func(c *gin.Context) {
+		GetDisk(c)
+	})
+
+	route.GET("/network", func(c *gin.Context) {
+		GetNetwork(c)
+	})
+
+	route.GET("/node", func(c *gin.Context) {
+		GetNode(c)
 	})
 
 	klog.V(1).Infof("start gin server on port %d", port)
