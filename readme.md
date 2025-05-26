@@ -1,12 +1,14 @@
 # host info
 
-默认监听8080端口，请求/all将会返回所有主机内容。
+Default listening on port 8080, requesting different interfaces to return different information.
 
-## 支持接口
+Use parameter - p to specify the port.
+
+## Support interfaces
 
 /test: test interface
 
-/help: print help info.
+/help: display help information.
 
 /version: response version info.
 
