@@ -15,3 +15,5 @@ server/start.go: 此文件代码处理了cobra klog等框架的冲突,进行了�
 server/server.go: 此文件主要是处理gin框架注册的http或者https的接口的代码.
 
 tools/tools.go: 此文件主要定义了一些全局变量
+
+支持使用-p传入端口或者读取配置文件传参。
