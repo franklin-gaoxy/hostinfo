@@ -14,6 +14,8 @@ import (
 	"strings"
 )
 
+var port int
+
 func InitStart() bool {
 	klogInit()
 	return true
@@ -28,6 +30,10 @@ func klogInit() {
 	_ = flag.CommandLine.Parse(nil)
 	//klog.Infof("klog init: log event %d\n", tools.LogEvent)
 	defer klog.Flush()
+}
+
+func version() string {
+	return "v1.0"
 }
 
 /*
@@ -83,7 +89,7 @@ var versionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "print version.",
 	Run: func(cmd *cobra.Command, args []string) {
-		klog.Infoln("v1.0")
+		klog.Infoln(version())
 	},
 }
 
@@ -105,6 +111,8 @@ func init() {
 	// 添加一个命令 init 需要指定参数 --config
 	initCmd.PersistentFlags().StringVar(&configFilePath, "config", "", "config file path.")
 	rootCmd.AddCommand(initCmd)
+	// 添加指定端口
+	rootCmd.Flags().IntVarP(&port, "port", "p", 8080, "port to listen on.")
 }
 
 func checkConfigFile(configFilePath string) bool {
@@ -141,8 +149,10 @@ func NewStart(configFilePath string) {
 	}
 	newDatabase.Init(config)
 
-	// start gin server
+	// start gin server: read config port
 	startGinServer(int(config.Port), newDatabase)
+	// start gin server: use command -p
+	startGinServer(port, newDatabase)
 
 }
 
@@ -177,14 +187,15 @@ func startGinServer(port int, database databases.Databases) {
 	route = gin.Default()
 
 	// TODO demo: binding interface
-	route.GET("/status/information", func(c *gin.Context) {
+	route.GET("/version", func(c *gin.Context) {
 		c.JSON(200, gin.H{
-			"status": "normal",
+			"status":  "normal",
+			"version": version(),
 		})
 	})
 
-	// TODO demo: add host
-	route.POST("/host/add", func(c *gin.Context) {
+	// TODO demo: Test interface
+	route.POST("/test", func(c *gin.Context) {
 		Test(c, database)
 	})
 
