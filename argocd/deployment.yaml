@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: hostinfo
-  namespace: monitoring
   labels:
     app: hostinfo
 spec:
