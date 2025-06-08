@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: hostinfo
-        image: registry.cn-hangzhou.aliyuncs.com/kubernetes_install/hostinfo:debian12
+        image: registry.cn-hangzhou.aliyuncs.com/kubernetes_install/hostinfo:v0.0.1
         command: ["hostinfo"]
         resources:
           requests:
